@@ -1,11 +1,6 @@
 # CityBasicRestApi
 
-Small Express-based REST API for basic city management. This project exposes endpoints to create and list cities and serves a minimal in-memory data store.
-
-## Prerequisites
-
-- Node.js (>=14)
-- npm
+Small Express-based REST API for basic city management. This project exposes endpoints to create and list cities, delted and update operation and serves a minimal in-memory data store in array as object in array.
 
 ## Install
 
@@ -100,16 +95,17 @@ Base path: `/api/v1`
 
 - Data is stored in-memory in `config/db.js` (not persisted). Restarting the server resets the data.
 - Implemented controllers: `createCity`, `getCities`, `getCityById`, `updateCityById`, and `deleteCityById` in `controller/cityController.js`.
-- Dependencies used: `express`, `dotenv`, `morgan`, `cors`, `uuid`.
+- Dependencies used: `express`, `dotenv`, `morgan`, `cors`, `uuid`. but for now I deleted UUid because confilct with hardcode in memory array when I filter for delete and update 
 
-## Files of interest
+## Folder structure and file
 
-- `server.js` — app entry and middleware setup.
+- `server.js` — app entry .
+- `middleware` - middleware empty it for my structure folder.
 - `router/cityRouter.js` — API routes.
 - `controller/cityController.js` — controller implementations.
 - `config/db.js` — in-memory data store.
 
-If you want, I can also add example Postman collection or complete the remaining controllers.
+
 
 
 
