@@ -62,12 +62,10 @@ const updateCityById = async (req, res) => {
     const { name, country, region, population, postalCode, coordinates } =
       req.body;
     const existCityForUpdateIndex = cities.findIndex((city) => city.id === id);
-    if (!existCityForUpdateIndex) {
-      return res
-        .status(404)
-        .json({
-          message: "This City not found for update please crreat first",
-        });
+    if (existCityForUpdateIndex === -1) {
+      return res.status(404).json({
+        message: "This City not found for update please crreat first",
+      });
     } else {
       const updatedCity = {
         ...cities[existCityForUpdateIndex],
@@ -88,13 +86,29 @@ const updateCityById = async (req, res) => {
   }
 };
 const deleteCityById = async (req, res) => {
-    try {
-        const id =parseInt(req.params.id)
-
-    } catch (error) {
-         console.error(error);
-    return res.status(500).json({ message: error.message });
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) {
+      return res
+        .status(400)
+        .json({ message: "please provide id before delete city" });
     }
+    const deletedCity = cities.find((city) => city.id === id);
+    if (!deletedCity) {
+      return res
+        .status(404)
+        .json({ message: "This city you provide ID is not found" });
+    }
+    const index = cities.findIndex((city) => city.id === id);
+    if (index !== -1) {
+      cities.splice(index, 1);
+    }
+
+    return res.status(200).json({ message: "City is deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
 export { createCity, getCities, getCityById, updateCityById, deleteCityById };

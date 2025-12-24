@@ -1,4 +1,4 @@
-export const cities = [
+export let cities = [
   {
     id: 1,
     name: "Addis Ababa",
