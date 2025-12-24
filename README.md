@@ -4,7 +4,8 @@ Small Express-based REST API for basic city management. This project exposes end
 
 
 <h1 align="center">⚠  On this simple demo project I havenot add frontend</h1>
-<h1 align="center"> because it take some time </h1>
+<h1 align="center"> because it take bit time </h1>
+
 ## Install
 
 ```bash
@@ -32,6 +33,7 @@ Root URL: [http://localhost:4000/](http://localhost:4000/)
 ## Environment
 
 - `NODE_ENV` (optional) — used by `morgan` for logging mode.
+- it remove from github it have only have NODE_ENV='dev' only for morgan
 
 ## Endpoints
 
