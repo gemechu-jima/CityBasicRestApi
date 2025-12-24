@@ -46,18 +46,55 @@ const getCities = async (req, res) => {
 const getCityById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const existCity = cities.find(city => city.id === id);
+    const existCity = cities.find((city) => city.id === id);
     if (!existCity) {
       return res.status(404).json({ message: "This City not found" });
     }
     return res.status(200).json(existCity);
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
   }
 };
-const updateCityById = async (req, res) => {};
-const deleteCityById = async (req, res) => {};
+const updateCityById = async (req, res) => {
+  try {
+    const id = parseFloat(req.params.id);
+    const { name, country, region, population, postalCode, coordinates } =
+      req.body;
+    const existCityForUpdateIndex = cities.findIndex((city) => city.id === id);
+    if (!existCityForUpdateIndex) {
+      return res
+        .status(404)
+        .json({
+          message: "This City not found for update please crreat first",
+        });
+    } else {
+      const updatedCity = {
+        ...cities[existCityForUpdateIndex],
+        name,
+        country,
+        region,
+        population,
+        postalCode,
+        coordinates,
+      };
+      cities[existCityForUpdateIndex] = updatedCity;
+      console.log(updatedCity);
+      return res.status(200).json(cities);
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+const deleteCityById = async (req, res) => {
+    try {
+        const id =parseInt(req.params.id)
+
+    } catch (error) {
+         console.error(error);
+    return res.status(500).json({ message: error.message });
+    }
+};
 
 export { createCity, getCities, getCityById, updateCityById, deleteCityById };
