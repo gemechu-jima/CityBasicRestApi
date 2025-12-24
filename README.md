@@ -91,12 +91,6 @@ Base path: `/api/v1`
   curl -X DELETE http://localhost:4000/api/v1/cities/1
   ```
 
-## Notes
-
-- Data is stored in-memory in `config/db.js` (not persisted). Restarting the server resets the data.
-- Implemented controllers: `createCity`, `getCities`, `getCityById`, `updateCityById`, and `deleteCityById` in `controller/cityController.js`.
-- Dependencies used: `express`, `dotenv`, `morgan`, `cors`, `uuid`. but for now I deleted UUid because confilct with hardcode in memory array when I filter for delete and update 
-
 ## Folder structure and file
 
 - `server.js` — app entry .
