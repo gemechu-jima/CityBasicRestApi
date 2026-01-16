@@ -1,33 +1,19 @@
 import { v4 } from "uuid";
 import { cities } from "../config/db.js";
 
-const createCity = async (req, res) => {
-  const { name, country, region, population, postalCode, coordinates } =
-    req.body;
-  const id = new Date().now();
-  console.log(id, name, country, region, population, postalCode, coordinates);
+// cityController.js
+export const createCity = async (req, res) => {
+  const { name, country, region, population, postalCode, coordinates } = req.body;
+  const id = Date.now();
 
   try {
-    const findExistCity = cities.find(
-      (city) => city.name.toLowerCase() === name.toLowerCase()
-    );
+    const findExistCity = cities.find(city => city.name.toLowerCase() === name.toLowerCase());
     if (findExistCity) {
-      return res
-        .status(409)
-        .json({ message: "This city is already registered" });
-    } else {
-      const newCity = {
-        id,
-        name,
-        population,
-        region,
-        country,
-        postalCode,
-        coordinates,
-      };
-      cities.push(newCity);
-      return res.status(201).json(newCity);
+      return res.status(409).json({ message: "This city is already registered" });
     }
+    const newCity = { id, name, country, region, population, postalCode, coordinates };
+    cities.push(newCity);
+    return res.status(201).json(newCity);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "server error" });
