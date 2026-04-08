@@ -22,7 +22,10 @@ pipeline {
         }
         stage("Test"){
             steps{
-                echo "test stage"
+                sh  '''
+                test -f dist/server.js
+                npm run test
+                '''
             }
         }
     }
