@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import { cities } from "../config/db.js";
 
 // cityController.js
-export const createCity = async (req, res) => {
+ const createCity = async (req, res) => {
   const { name, country, region, population, postalCode, coordinates } = req.body;
   const id = Date.now();
 
