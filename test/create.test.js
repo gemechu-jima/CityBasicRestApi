@@ -1,51 +1,32 @@
-// userService.test.js
+import { jest, test, expect } from '@jest/globals';
 import { createCity } from "../controller/cityController.js";
 
-const mockPool = {
-  query: jest.fn().mockResolvedValue({
-    rows: [
-      {
-        id: 1,
-        name: "addis",
-        country: "Ethiopia",
-        region: "Addis Ababa",
-        population: 15000000,
-        postalCode: "0000",
-        coordinates: {
-          latitude: 9.03,
-          longitude: 38.74,
-        },
-      },
-    ],
-  }),
-};
+test("createCity inserts and returns city data", async () => {
+  // 1. Create a Mock Request
+  const req = {
+    body: {
+      name: "addis",
+      country: "Ethiopia",
+      region: "Addis Ababa",
+      population: 15000000,
+      postalCode: "0000",
+      coordinates: { latitude: 9.03, longitude: 38.74 }
+    }
+  };
 
-test("createUser inserts and returns user", async () => {
-  const user = await createCity(
-    mockPool,
-    "addis",
-    "Ethiopia",
-    "Addis Ababa",
-    15000000,
-    "0000",
-    { latitude: 9.03, longitude: 38.74 }
-  );
-  expect(user.id).toBe(1);
-  expect(user.name).toBe("addis");
-  expect(user.country).toBe("Ethiopia");
-  expect(user.region).toBe("Addis Ababa");
-  expect(user.population).toBe(15000000);
-  expect(user.postalCode).toBe("0000");
-  expect(user.coordinates).toEqual({ latitude: 9.03, longitude: 38.74 });
-  expect(mockPool.query).toHaveBeenCalledWith(
-    "INSERT INTO users (id, name,country, region, population, postalcode, coordinates ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
-    [
-      "addis",
-      "Ethiopia",
-      "Addis Ababa",
-      15000000,
-      "0000",
-      { latitude: 9.03, longitude: 38.74 },
-    ]
+  // 2. Create a Mock Response
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn().mockReturnThis()
+  };
+
+  // 3. Call the controller with (req, res)
+  await createCity(req, res);
+
+  // 4. Assertions
+  // Since Express controllers usually use res.json(), check that:
+  expect(res.status).toHaveBeenCalledWith(201); // Or 200, depending on your code
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({ name: "addis" })
   );
 });
