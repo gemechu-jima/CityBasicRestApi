@@ -1,51 +1,48 @@
 pipeline {
-    agent any
-   triggers {
-        pollSCM('* * * * *') 
+  agent any
+
+  environment {
+    IMAGE = 'docker.io/onetwo1/citybasicrestapi'   
+    TAG   = "${BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('checkout') {
+      steps {
+       git branch: 'main',
+       poll: false, 
+       url: 'https://github.com/gemechu-jima/CityBasicRestApi.git'
+      }
     }
-    stages {
-        stage('Build') {
-             agent {
-                docker {
-                 image 'node:18-alpine'
-                 reuseNode true
-            }
-        }
-            steps {
-                sh '''
-                node --version
-                npm --version
-                npm install
-                npm run build
-                '''
-            }
-        }
-        stage("Test"){
-            agent {
-              docker {
-                image 'node:18-alpine'
-                reuseNode true
-            }
-           }
-            steps{
-                sh '''
-                ls -la dist/ || echo "No dist folder found"
-                npm run test
-                '''
-            }
-        }
-        stage("Deploy"){
-            agent {
-              docker {
-                image 'node:18-alpine'
-                reuseNode true
-            }
-           }
-            steps{
-                sh '''
-                echo "deploy"
-                '''
-            }
-        }
+    stage('build') {
+      steps {
+       sh 'docker build -t "$IMAGE:$TAG" -t "$IMAGE:latest" .'
+      }
     }
+    stage('push') {
+      steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'docker-hub-id', 
+            passwordVariable: 'DOCKERHUB_PWD',
+            usernameVariable: 'DOCKERHUB_USER'
+            )]) 
+        {
+          sh 'echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin'
+          sh 'docker push "$IMAGE:$TAG"'
+          sh 'docker push "$IMAGE:latest"'
+      }
+    }
+    stage('deploy') {
+      steps {
+         sh 'docker pull "$IMAGE:$TAG"'
+        sh 'docker rm -f citybasicrestapi || true'
+        sh 'docker run -d --name citybasicrestapi -p 4000:4000 "$IMAGE:$TAG"'
+      }
+    }
+    stage('test') {
+      steps {
+        sh 'sleep 2; curl -s http://localhost:4000 || true'
+      }
+    }
+  }
 }
