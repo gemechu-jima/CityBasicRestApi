@@ -50,9 +50,8 @@ pipeline {
 
         stage('Test') {
             steps {
-                // Give the app a moment to start, then test. 
-                // Removed '|| true' so the pipeline fails if the app is dead.
-                sh 'sleep 5; curl -f http://localhost:4000'
+                // Simple test to check if the API is responding
+                sh 'curl -f http://localhost:4000/ || exit 1'
             }
         }
     }
