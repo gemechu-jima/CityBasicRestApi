@@ -50,8 +50,9 @@ pipeline {
 
         stage('Test') {
             steps {
-                // Simple test to check if the API is responding
-                sh 'curl -f http://localhost:4000/ || exit 1'
+                sh 'sleep 10'
+                // This runs a curl command from a temporary container on the host network
+                sh 'docker run --rm --network host curlimages/curl -f http://localhost:4000'
             }
         }
     }
