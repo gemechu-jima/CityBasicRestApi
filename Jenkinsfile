@@ -1,48 +1,67 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE = 'docker.io/onetwo1/citybasicrestapi'   
-    TAG   = "${BUILD_NUMBER}"
-  }
+    environment {
+        // Use single quotes where interpolation isn't needed
+        IMAGE = 'docker.io/onetwo1/citybasicrestapi'   
+        TAG   = "${BUILD_NUMBER}"
+    }
 
-  stages {
-    stage('checkout') {
-      steps {
-       git branch: 'main',
-       poll: false, 
-       url: 'https://github.com/gemechu-jima/CityBasicRestApi.git'
-      }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Simplified checkout
+                git branch: 'main', url: 'https://github.com/gemechu-jima/CityBasicRestApi.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Using double quotes so the shell can read the Jenkins env variables
+                sh 'docker build -t "$IMAGE:$TAG" -t "$IMAGE:latest" .'
+            }
+        }
+
+        stage('Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-id', 
+                    passwordVariable: 'DOCKERHUB_PWD',
+                    usernameVariable: 'DOCKERHUB_USER'
+                )]) {
+                    sh 'echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin'
+                    sh 'docker push "$IMAGE:$TAG"'
+                    sh 'docker push "$IMAGE:latest"'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Added a check to see if container exists before trying to stop it
+                sh '''
+                    docker pull "$IMAGE:$TAG"
+                    docker stop citybasicrestapi || true
+                    docker rm citybasicrestapi || true
+                    docker run -d --name citybasicrestapi -p 4000:4000 "$IMAGE:$TAG"
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Give the app a moment to start, then test. 
+                // Removed '|| true' so the pipeline fails if the app is dead.
+                sh 'sleep 5; curl -f http://localhost:4000'
+            }
+        }
     }
-    stage('build') {
-      steps {
-       sh 'docker build -t "$IMAGE:$TAG" -t "$IMAGE:latest" .'
-      }
+
+    post {
+        always {
+            // Clean up the workspace and local docker images to save space
+            cleanWs()
+            sh 'docker rmi "$IMAGE:$TAG" "$IMAGE:latest" || true'
+        }
     }
-    stage('push') {
-      steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'docker-hub-id', 
-            passwordVariable: 'DOCKERHUB_PWD',
-            usernameVariable: 'DOCKERHUB_USER'
-            )]) 
-        {
-          sh 'echo "$DOCKERHUB_PWD" | docker login -u "$DOCKERHUB_USER" --password-stdin'
-          sh 'docker push "$IMAGE:$TAG"'
-          sh 'docker push "$IMAGE:latest"'
-      }
-    }
-    stage('deploy') {
-      steps {
-         sh 'docker pull "$IMAGE:$TAG"'
-        sh 'docker rm -f citybasicrestapi || true'
-        sh 'docker run -d --name citybasicrestapi -p 4000:4000 "$IMAGE:$TAG"'
-      }
-    }
-    stage('test') {
-      steps {
-        sh 'sleep 2; curl -s http://localhost:4000 || true'
-      }
-    }
-  }
 }
